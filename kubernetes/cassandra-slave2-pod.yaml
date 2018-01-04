@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cassandra-node2
+  labels:
+    name: cassandra-node2
+spec:
+  containers:
+    - image: bitnami/cassandra
+      name: cassandra2
+      volumeMounts:
+        - name: cassandra-node2-data
+          mountPath: /var/lib/cassandra
+      env:
+        - name: CASSANDRA_CLUSTER_NAME
+          value: "kobito-db"
+        - name: CASSANDRA_SEEDS
+          value: "10.8.1.11"
+        - name: CASSANDRA_ENDPOINT_SNITCH
+          value: "GoogleCloudSnitch"
+        - name: CASSANDRA_USER
+          value: "kobito-cassandra"
+        - name: CASSANDRA_PASSWORD
+          value: "kobito-cassandra"
+  volumes:
+    - name: cassandra-node2-data
+      persistentVolumeClaim:
+        claimName: cassandra-node2-data
+---
+# Request a persistent volume from the cluster using a Persistent Volume Claim.
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cassandra-node2-data
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: default
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 50Gi
